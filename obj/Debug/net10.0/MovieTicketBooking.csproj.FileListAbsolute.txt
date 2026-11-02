@@ -166,3 +166,6 @@ C:\Users\admin\source\repos\TheaterApp\obj\Debug\net10.0\MovieTicketBooking.genr
 C:\Users\admin\source\repos\TheaterApp\obj\Debug\net10.0\ref\MovieTicketBooking.dll
 C:\Users\admin\source\repos\TheaterApp\bin\Debug\net10.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\admin\source\repos\TheaterApp\bin\Debug\net10.0\runtimes\win\lib\net10.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\admin\source\repos\TheaterApp\obj\Debug\net10.0\MovieTicketBooking.sourcelink.json
+C:\Users\admin\source\repos\TheaterApp\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\admin\source\repos\TheaterApp\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll

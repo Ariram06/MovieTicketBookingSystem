@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MovieTicketBooking.Models;
 
 namespace MovieTicketBooking.Data
 {
     // ApplicationDbContext defines database sets (DbSet) and Fluent API configurations
-    // for all eight entity models in the Movie Ticket Booking system.
+    // for all entity models and Identity authentication in the Movie Ticket Booking system.
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -20,6 +21,11 @@ namespace MovieTicketBooking.Data
         public DbSet<ShowSeat> ShowSeats => Set<ShowSeat>();
         public DbSet<Booking> Bookings => Set<Booking>();
         public DbSet<BookingSeat> BookingSeats => Set<BookingSeat>();
+
+        // Identity Sets
+        public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
+        public DbSet<IdentityRole> Roles => Set<IdentityRole>();
+        public DbSet<ApplicationUserRole> UserRoles => Set<ApplicationUserRole>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -161,11 +167,18 @@ namespace MovieTicketBooking.Data
                 entity.Property(b => b.BookingStatus).IsRequired().HasMaxLength(20);
                 entity.Property(b => b.BookingTime).IsRequired();
                 entity.Property(b => b.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.Property(b => b.UserId).HasMaxLength(450);
 
                 // Booking has many BookingSeats. Restrict delete to preserve booking history.
                 entity.HasMany(b => b.BookingSeats)
                       .WithOne(bs => bs.Booking)
                       .HasForeignKey(bs => bs.BookingId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Booking optionally belongs to an authenticated user
+                entity.HasOne(b => b.User)
+                      .WithMany(u => u.Bookings)
+                      .HasForeignKey(b => b.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -176,6 +189,42 @@ namespace MovieTicketBooking.Data
             {
                 entity.HasKey(bs => bs.Id);
                 entity.Property(bs => bs.Price).HasColumnType("decimal(18,2)");
+            });
+
+            // ==========================================
+            // 9. Identity Configuration
+            // ==========================================
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+                entity.Property(u => u.FullName).IsRequired().HasMaxLength(100);
+                entity.Property(u => u.Email).HasMaxLength(256);
+                entity.Property(u => u.NormalizedEmail).HasMaxLength(256);
+                entity.Property(u => u.UserName).HasMaxLength(256);
+                entity.Property(u => u.NormalizedUserName).HasMaxLength(256);
+                entity.HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex");
+                entity.HasIndex(u => u.NormalizedUserName).IsUnique().HasDatabaseName("UserNameIndex");
+            });
+
+            modelBuilder.Entity<IdentityRole>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.Name).HasMaxLength(256);
+                entity.Property(r => r.NormalizedName).HasMaxLength(256);
+                entity.HasIndex(r => r.NormalizedName).IsUnique().HasDatabaseName("RoleNameIndex");
+            });
+
+            modelBuilder.Entity<ApplicationUserRole>(entity =>
+            {
+                entity.HasKey(ur => new { ur.UserId, ur.RoleId });
+                entity.HasOne(ur => ur.User)
+                      .WithMany()
+                      .HasForeignKey(ur => ur.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(ur => ur.Role)
+                      .WithMany()
+                      .HasForeignKey(ur => ur.RoleId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

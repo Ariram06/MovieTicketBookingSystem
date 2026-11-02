@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MovieTicketBooking.DTOs.Movies;
 using MovieTicketBooking.Services.Interfaces;
@@ -6,6 +7,7 @@ namespace MovieTicketBooking.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class MoviesController : ControllerBase
     {
         private readonly IMovieService _movieService;
@@ -15,8 +17,9 @@ namespace MovieTicketBooking.Controllers
             _movieService = movieService;
         }
 
-        // POST: api/movies
+        // POST: api/movies  – Admin only
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateMovieDto dto)
         {
             if (!ModelState.IsValid)
@@ -35,16 +38,18 @@ namespace MovieTicketBooking.Controllers
             }
         }
 
-        // GET: api/movies?pageNumber=1&pageSize=10
+        // GET: api/movies?pageNumber=1&pageSize=10  – Admin + Customer
         [HttpGet]
+        [Authorize(Roles = "Admin,Customer")]
         public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _movieService.GetAllMoviesAsync(pageNumber, pageSize);
             return Ok(result);
         }
 
-        // GET: api/movies/{id}
+        // GET: api/movies/{id}  – Admin + Customer
         [HttpGet("{id:int}")]
+        [Authorize(Roles = "Admin,Customer")]
         public async Task<IActionResult> GetById(int id)
         {
             var movie = await _movieService.GetMovieByIdAsync(id);
@@ -56,16 +61,18 @@ namespace MovieTicketBooking.Controllers
             return Ok(movie);
         }
 
-        // GET: api/movies/search?title={title}
+        // GET: api/movies/search?title={title}  – Admin + Customer
         [HttpGet("search")]
+        [Authorize(Roles = "Admin,Customer")]
         public async Task<IActionResult> SearchByTitle([FromQuery] string title)
         {
             var results = await _movieService.SearchMoviesByTitleAsync(title);
             return Ok(results);
         }
 
-        // PUT: api/movies/{id}
+        // PUT: api/movies/{id}  – Admin only
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateMovieDto dto)
         {
             if (!ModelState.IsValid)
@@ -88,8 +95,9 @@ namespace MovieTicketBooking.Controllers
             }
         }
 
-        // DELETE: api/movies/{id}
+        // DELETE: api/movies/{id}  – Admin only
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -108,4 +116,3 @@ namespace MovieTicketBooking.Controllers
         }
     }
 }
-

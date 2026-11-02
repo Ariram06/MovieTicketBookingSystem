@@ -9,7 +9,7 @@ namespace MovieTicketBooking.Repositories
     // Handles pure database queries and persistence.
     public class MovieRepository : IMovieRepository
     {
-        private readonly A4pplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public MovieRepository(ApplicationDbContext context)
         {

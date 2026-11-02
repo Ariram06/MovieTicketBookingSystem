@@ -7,6 +7,9 @@ namespace MovieTicketBooking.Models
 
         public int ShowId { get; set; }
 
+        // Optional foreign key to authenticated user (nullable for existing historical records)
+        public string? UserId { get; set; }
+
         public string CustomerName { get; set; } = string.Empty;
 
         public string CustomerEmail { get; set; } = string.Empty;
@@ -23,8 +26,10 @@ namespace MovieTicketBooking.Models
         // Navigation property to Show
         public Show Show { get; set; } = null!;
 
+        // Navigation property to User
+        public ApplicationUser? User { get; set; }
+
         // Navigation property: One booking can include multiple booked seats
         public ICollection<BookingSeat> BookingSeats { get; set; } = new List<BookingSeat>();
     }
 }
-
